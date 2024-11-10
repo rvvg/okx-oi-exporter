@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+    config.LoadEnv()
+
     log.Println("Starting OKX Open Interest Exporter")
 
     if err := api.CheckExchangeEndpoint(config.OKXEndpoint); err != nil {
