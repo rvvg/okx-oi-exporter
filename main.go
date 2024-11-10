@@ -21,7 +21,7 @@ func main() {
         promhttp.Handler().ServeHTTP(w, r)
     })
 
-    log.Println("Exporter is ready to serve metrics on :8080/metrics")
+    log.Printf("Exporter is ready to serve metrics on %s/metrics", config.ExporterPort)
 
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(config.ExporterPort, nil))
 }
