@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvvg/okx-oi-exporter/api"
@@ -17,14 +16,10 @@ func main() {
         log.Fatalf("Failed to connect to exchange endpoint: %v", err)
     }
 
-    http.Handle("/metrics", promhttp.Handler())
-
-    go func() {
-        for {
-            api.FetchOpenInterest()
-            time.Sleep(5 * time.Second)
-        }
-    }()
+    http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+        api.FetchOpenInterest()
+        promhttp.Handler().ServeHTTP(w, r)
+    })
 
     log.Println("Exporter is ready to serve metrics on :8080/metrics")
 
