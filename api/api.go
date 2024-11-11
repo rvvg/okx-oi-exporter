@@ -18,10 +18,7 @@ import (
 type OpenInterest struct {
     InstId   string `json:"instId"`
     InstType string `json:"instType"`
-    Oi       string `json:"oi"`
-    OiCcy    string `json:"oiCcy"`
     OiUsd    string `json:"oiUsd"`
-    Ts       string `json:"ts"`
 }
 
 type ApiResponse struct {
@@ -29,10 +26,8 @@ type ApiResponse struct {
     Data []OpenInterest `json:"data"`
 }
 
-type Config = config.Config
-type Metrics = metrics.Metrics
 
-func FetchOpenInterest(cfg *Config, metrics *Metrics) {
+func FetchOpenInterest(cfg *config.Config, metrics *metrics.Metrics) {
     retryClient := retryablehttp.NewClient()
     retryClient.RetryMax = 3
 
@@ -89,7 +84,7 @@ func CheckExchangeEndpoint(endpoint string) error {
 
     resp, err := retryClient.Do(req)
     if err != nil {
-        return err
+    	return err
     }
     defer resp.Body.Close()
 
