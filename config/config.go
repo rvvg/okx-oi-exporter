@@ -7,20 +7,24 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var (
+type Config struct {
     OKXEndpoint   string
     ExporterPort  string
-)
+}
 
-func LoadEnv() {
+func LoadEnv() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, checking environment variables")
 	}
 
-	OKXEndpoint = os.Getenv("OKX_ENDPOINT")
-	ExporterPort = os.Getenv("EXPORTER_PORT")
+	config := &Config{
+		OKXEndpoint:  os.Getenv("OKX_ENDPOINT"),
+		ExporterPort: os.Getenv("EXPORTER_PORT"),
+	}
 
-	if OKXEndpoint == "" || ExporterPort == "" {
+	if config.OKXEndpoint == "" || config.ExporterPort == "" {
 		log.Fatal("Required environment variables OKX_ENDPOINT and EXPORTER_PORT are not set in either .env file or environment")
 	}
+
+	return config
 }

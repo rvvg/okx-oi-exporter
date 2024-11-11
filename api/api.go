@@ -26,8 +26,11 @@ type ApiResponse struct {
     Data []OpenInterest `json:"data"`
 }
 
-func FetchOpenInterest() {
-    resp, err := http.Get(config.OKXEndpoint)
+type Config = config.Config
+type Metrics = metrics.Metrics
+
+func FetchOpenInterest(cfg *Config, metrics *Metrics) {
+    resp, err := http.Get(cfg.OKXEndpoint)
     if err != nil {
         log.Printf("Error fetching data: %v", err)
         return

@@ -7,23 +7,25 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvvg/okx-oi-exporter/api"
 	"github.com/rvvg/okx-oi-exporter/config"
+	"github.com/rvvg/okx-oi-exporter/metrics"
 )
 
 func main() {
-    config.LoadEnv()
-
+    cfg := config.LoadEnv()
+    metrics := metrics.NewMetrics()
+    
     log.Println("Starting OKX Open Interest Exporter")
 
-    if err := api.CheckExchangeEndpoint(config.OKXEndpoint); err != nil {
+    if err := api.CheckExchangeEndpoint(cfg.OKXEndpoint); err != nil {
         log.Fatalf("Failed to connect to exchange endpoint: %v", err)
     }
 
     http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-        api.FetchOpenInterest()
+        api.FetchOpenInterest(cfg, metrics)
         promhttp.Handler().ServeHTTP(w, r)
     })
 
-    log.Printf("Exporter is ready to serve metrics on %s/metrics", config.ExporterPort)
+    log.Printf("Exporter is ready to serve metrics on %s/metrics", cfg.ExporterPort)
 
-    log.Fatal(http.ListenAndServe(config.ExporterPort, nil))
+    log.Fatal(http.ListenAndServe(cfg.ExporterPort, nil))
 }

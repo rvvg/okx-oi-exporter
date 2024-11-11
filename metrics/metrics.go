@@ -4,16 +4,20 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-    OpenInterestMetric = prometheus.NewGaugeVec(
-        prometheus.GaugeOpts{
-            Name: "okx_open_interest",
-            Help: "Open interest data from OKX",
-        },
-        []string{"instId", "instType"},
-    )
-)
+type Metrics struct {
+    OpenInterestMetric *prometheus.GaugeVec
+}
 
-func init() {
-    prometheus.MustRegister(OpenInterestMetric)
+func NewMetrics() *Metrics {
+    metrics := &Metrics{
+        OpenInterestMetric: prometheus.NewGaugeVec(
+            prometheus.GaugeOpts{
+                Name: "okx_open_interest",
+                Help: "Open interest data from OKX",
+            },
+            []string{"instId", "instType"},
+        ),
+    }
+    prometheus.MustRegister(metrics.OpenInterestMetric)
+    return metrics
 }
