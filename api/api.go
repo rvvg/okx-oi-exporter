@@ -1,13 +1,16 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/rvvg/okx-oi-exporter/config"
 	"github.com/rvvg/okx-oi-exporter/metrics"
 )
@@ -30,7 +33,19 @@ type Config = config.Config
 type Metrics = metrics.Metrics
 
 func FetchOpenInterest(cfg *Config, metrics *Metrics) {
-    resp, err := http.Get(cfg.OKXEndpoint)
+    retryClient := retryablehttp.NewClient()
+    retryClient.RetryMax = 3
+
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+
+    req, err := retryablehttp.NewRequestWithContext(ctx, "GET", cfg.OKXEndpoint, nil)
+    if err != nil {
+        log.Printf("Error creating request: %v", err)
+        return
+    }
+
+    resp, err := retryClient.Do(req)
     if err != nil {
         log.Printf("Error fetching data: %v", err)
         return
@@ -61,7 +76,18 @@ func FetchOpenInterest(cfg *Config, metrics *Metrics) {
 }
 
 func CheckExchangeEndpoint(endpoint string) error {
-    resp, err := http.Get(endpoint)
+    retryClient := retryablehttp.NewClient()
+    retryClient.RetryMax = 3
+
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+
+    req, err := retryablehttp.NewRequestWithContext(ctx, "GET", endpoint, nil)
+    if err != nil {
+        return err
+    }
+
+    resp, err := retryClient.Do(req)
     if err != nil {
         return err
     }
